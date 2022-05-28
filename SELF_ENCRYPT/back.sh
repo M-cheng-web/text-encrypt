@@ -36,16 +36,16 @@ then
   if [ -e $dir ]; then rm -rf $dir; fi
   mkdir $dir
   cd ..
-  files=`ls | grep -v SELF_ENCRYPT`
+  files=`ls | grep -v SELF_ENCRYPT | grep -v node_modules`
   cp -ax $files ./SELF_ENCRYPT/.back
 else
   # 回滚
   if [ -e $dir ]
-    then
-      cd ..
-      rm -rf `ls | grep -v SELF_ENCRYPT`
-      cp -rf ./SELF_ENCRYPT/.back/* ./
-    else
-      echo "只有操作了文件才能进行回滚"
+  then
+    cd ..
+    rm -rf `ls | grep -v SELF_ENCRYPT | grep -v node_modules`
+    cp -rf ./SELF_ENCRYPT/.back/* ./
+  else
+    echo "只有操作了文件才能进行回滚"
   fi
 fi
