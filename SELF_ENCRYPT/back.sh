@@ -20,8 +20,8 @@ set -e # 确保脚本抛出遇到的错误
 
 gitFile='.git/info/exclude'
 if test -f $gitFile
-  then
-    echo 'SELF_ENCRYPT/.back' >> $gitFile # git不监听
+then
+  echo 'SELF_ENCRYPT/.back' >> $gitFile # git不监听
 fi
 
 cd `dirname $0` # 进入工作目录 (也就是 SELF_ENCRYPT内)
@@ -31,21 +31,21 @@ IFS=$'\n'
 dir=".back"
 
 if [[ $1 = _self ]]
-  then
-    # 备份
-    if [ -e $dir ]; then rm -rf $dir; fi
-    mkdir $dir
-    cd ..
-    files=`ls | grep -v SELF_ENCRYPT`
-    cp -ax $files ./SELF_ENCRYPT/.back
-  else
-    # 回滚
-    if [ -e $dir ]
-      then
-        cd ..
-        rm -rf `ls | grep -v SELF_ENCRYPT`
-        cp -rf ./SELF_ENCRYPT/.back/* ./
-      else
-        echo "只有操作了文件才能进行回滚"
-    fi
+then
+  # 备份
+  if [ -e $dir ]; then rm -rf $dir; fi
+  mkdir $dir
+  cd ..
+  files=`ls | grep -v SELF_ENCRYPT`
+  cp -ax $files ./SELF_ENCRYPT/.back
+else
+  # 回滚
+  if [ -e $dir ]
+    then
+      cd ..
+      rm -rf `ls | grep -v SELF_ENCRYPT`
+      cp -rf ./SELF_ENCRYPT/.back/* ./
+    else
+      echo "只有操作了文件才能进行回滚"
+  fi
 fi

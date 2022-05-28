@@ -5,9 +5,9 @@
 defaultBranch=main
 
 if [ $1 = push ]
-  then
-    git add -A
-    git commit -m 'encrypt'
+then
+  git add -A
+  git commit -m 'encrypt'
 fi
 
 echo git $1 origin $defaultBranch....

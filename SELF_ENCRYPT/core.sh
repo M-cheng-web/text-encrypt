@@ -12,7 +12,7 @@ function includeFile() {
   for ex in ${ParamsCArr[@]}
   do
     if [ $ex = $1 ]
-      then isPass=false
+    then isPass=false
     fi
   done
 }
@@ -23,11 +23,18 @@ function getdir() {
   do
     includeFile $file
     if ${isPass}
-      then
-        if test -f $file
-          then fileArr=(${fileArr[@]} $file)
-          else getdir $file/*
+    then
+      if test -f $file
+      then fileArr=(${fileArr[@]} $file)
+      else
+        # 这边支持一下输入原文件名就可以判断是否为加密文件
+        # a.js 加密后是 a.js.encrypt, 那么解密就需要输入 a.js.encrypt 才可以
+        # 这边加上了就可以支持输入 a.js 就能解密
+        if test -f $file.encrypt
+        then fileArr=(${fileArr[@]} $file.encrypt)
+        else getdir $file/*
         fi
+      fi
     fi
   done
 }
@@ -35,11 +42,11 @@ function getdir() {
 for infile in $2
 do
   if [ $infile = 'all' ]
-    then
-      getdir * # 遍历所有文件
-      break
-    else
-      getdir $infile # 遍历特定文件
+  then
+    getdir * # 遍历所有文件
+    break
+  else
+    getdir $infile # 遍历特定文件
   fi
 done
 
@@ -51,55 +58,55 @@ if [ -z $fileArr ]
   else
     _pass=true
     if [ $1 = on ]
-      then
-        # 加密场景: 不能重复加密,后缀名必须 不带有encrypt
-        for file in ${fileArr[@]}
-        do
-          if [ ${file:0-7} = encrypt ]
-            then
-            _pass=false
-            echo '加密失败,[ '$file' ]文件已加密,请重新确定避免重复加密'
-          fi
-        done
-      else
-        # 解密场景: 不能重复解密,后缀名必须 带有encrypt
-        for file in ${fileArr[@]}
-        do
-          if [[ ${file:0-7} != encrypt && $3 != adhoc ]]
-            then
-              _pass=false
-              echo '解密失败,[ '$file' ]文件不是已加密文件,只能对已加密文件解密'
-          fi
+    then
+      # 加密场景: 不能重复加密,后缀名必须 不带有encrypt
+      for file in ${fileArr[@]}
+      do
+        if [ ${file:0-7} = encrypt ]
+        then
+          _pass=false
+          echo '加密失败,[ '$file' ]文件已加密,请重新确定避免重复加密'
+        fi
+      done
+    else
+      # 解密场景: 不能重复解密,后缀名必须 带有encrypt
+      for file in ${fileArr[@]}
+      do
+        if [[ ${file:0-7} != encrypt && $3 != adhoc ]]
+        then
+          _pass=false
+          echo '解密失败,[ '$file' ]文件不是已加密文件,只能对已加密文件解密'
+        fi
 
-          if [[ ${file:0-7} = encrypt && $3 = adhoc ]]
-            then storageFile=(${storageFile[@]} $file)
-          fi
-        done
+        if [[ ${file:0-7} = encrypt && $3 = adhoc ]]
+        then storageFile=(${storageFile[@]} $file)
+        fi
+      done
     fi
 
     if [ $_pass = true ]
       then
         # 这里之所以中转一下,是因为发现下面的参数不能实时更新,只能换一个值存
         if [[ $3 = adhoc ]]
-          then newFileArr=(${storageFile[@]})
-          else newFileArr=(${fileArr[@]})
+        then newFileArr=(${storageFile[@]})
+        else newFileArr=(${fileArr[@]})
         fi
         sh ./SELF_ENCRYPT/back.sh _self
         node ./SELF_ENCRYPT/core.js $1 ${newFileArr[@]}
 
         if [ $1 = on ]
-          then
-            # 对加密后的文件添加后缀名
-            for file in ${fileArr[@]}
-            do
-              mv $file $file.encrypt
-            done
-          else
-            # 对解密后的文件删除后缀名
-            for file in ${fileArr[@]}
-            do
-              mv $file ${file%*.encrypt}
-            done
+        then
+          # 对加密后的文件添加后缀名
+          for file in ${fileArr[@]}
+          do
+            mv $file $file.encrypt
+          done
+        else
+          # 对解密后的文件删除后缀名
+          for file in ${fileArr[@]}
+          do
+            mv $file ${file%*.encrypt}
+          done
         fi
     fi
 fi
