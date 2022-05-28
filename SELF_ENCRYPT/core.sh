@@ -64,7 +64,7 @@ if [ -z $fileArr ]
       # 加密场景: 不能重复加密,后缀名必须 不带有encrypt
       for file in ${fileArr[@]}
       do
-        if [[ $file = *encrypt* ]]
+        if [[ $file = *.encrypt* ]]
         then
           _pass=false
           echo '加密失败,[ '$file' ]文件已加密,请重新确定避免重复加密'
@@ -74,13 +74,13 @@ if [ -z $fileArr ]
       # 解密场景: 不能重复解密,后缀名必须 带有encrypt
       for file in ${fileArr[@]}
       do
-        if [[ $file != *encrypt* && $3 != adhoc ]]
+        if [[ $file != *.encrypt* && $3 != adhoc ]]
         then
           _pass=false
           echo '解密失败,[ '$file' ]文件不是已加密文件,只能对已加密文件解密'
         fi
 
-        if [[ $file != *encrypt*  && $3 = adhoc ]]
+        if [[ $file != *.encrypt*  && $3 = adhoc ]]
         then storageFile=(${storageFile[@]} $file)
         fi
       done
